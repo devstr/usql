@@ -1,0 +1,164 @@
+﻿//Input data locations
+//DECLARE @inputPostCodes = @"D:\Help\ColumbusDay4.0\Demos\Data\UKCrimesCities\ukpostcodes.csv";
+//DECLARE @input10topCities = @"D:\Help\ColumbusDay4.0\Demos\Data\UKCrimesCities\uk10cities.csv";
+//DECLARE @inputCrimes = @"D:\Help\ColumbusDay4.0\Demos\Data\UKCrimes\{Date:yyyy}-{Date:MM}\{Input}-street.csv";
+//Azure
+DECLARE @inputPostCodes = @"UKCrimes/ukpostcodes.csv";
+DECLARE @input10topCities = @"UKCrimes/uk10cities.csv";
+DECLARE @inputCrimes = @"UKCrimes/Crimes/{Date:yyyy}-{Date:MM}/{Input}-street.csv";
+//Max Distance in Meters
+DECLARE @maxDistance double = 15000;
+//DB Context
+USE UKCrimes;
+//Asseblies registered in DB
+REFERENCE ASSEMBLY UKCrimesCSharp;
+USING Gps = UKCrimesCSharp.Gps;
+USING TypeConverter = UKCrimesCSharp.TypeConverter;
+
+//Clean Tables
+TRUNCATE TABLE cr.TopCities;
+TRUNCATE TABLE cr.CityCrimes;
+
+//Extract PostCodes
+@postCodes =
+    EXTRACT Id string,
+            Postcode string,
+            Latitude string,
+            Longitude string
+    FROM @inputPostCodes
+    USING Extractors.Csv(skipFirstNRows:1);
+
+//Extract Cities
+@topCities =
+    EXTRACT Id int,
+            Name string,
+            Population string,
+            Postcode string
+    FROM @input10topCities
+    USING Extractors.Text(delimiter : ';');
+
+
+
+//Find GPS for Cities by PostCodes
+@topCitiesWithGPS =
+    SELECT tc.Name,
+           tc.Population,
+           pc.Latitude,
+           pc.Longitude
+    FROM @topCities AS tc
+         JOIN
+             @postCodes AS pc
+         ON pc.Postcode == tc.Postcode;
+
+//Save TopCities
+INSERT INTO cr.TopCities
+(
+    Name,
+    Population,
+    Latitude,
+    Longitude
+)
+SELECT Name,
+       TypeConverter.ParseToInt(Population.Replace(",", "")) AS Population,
+       TypeConverter.ParseToDouble(Latitude) AS Latitude,
+       TypeConverter.ParseToDouble(Longitude) AS Longitude
+FROM @topCitiesWithGPS;
+
+//Extract Crimes
+@crimes =
+    SELECT CrimeID,
+           Month,
+           ReportedBy,
+           FallsWithin,
+           Longitude,
+           Latitude,
+           Location,
+           LSOACode,
+           LSOAName,
+           CrimeType,
+           LastOutcomeCategory,
+           Context,
+           Date,
+           Input
+    FROM cr.tvf_Crimes
+         (
+             @inputCrimes
+         ) AS T;
+
+
+//Join Crimes and Cities (CROSS JOIN)
+@merged =
+    SELECT cr.Latitude AS sLatitude,
+           cr.Longitude AS sLongitude,
+           c.Latitude AS dLatitude,
+           c.Longitude AS dLongitude,
+           c.Name AS CityName,
+           cr.CrimeType,
+           cr.Date.Month AS Month,
+           cr.Date.Year AS Year,
+           ROW_NUMBER() OVER(PARTITION BY c.Name) AS CrimeId
+    FROM @crimes AS cr
+         CROSS JOIN
+             @topCitiesWithGPS AS c;
+
+//Compute distances for Crimes from each Cities
+@distances =
+    SELECT CrimeId,
+           CityName,
+           CrimeType,
+           Year,
+           Month,
+           Gps.ComputeDistance
+           (sLatitude, sLongitude, dLatitude, dLongitude) AS Distance
+    FROM @merged;
+
+//Assign crimes to Cities 
+@cityCrimes =
+    SELECT CrimeId,
+           CityName,
+           Year,
+           Month,
+           CrimeType,
+           Distance
+    FROM @distances
+    WHERE Distance > 0 AND Distance <= @maxDistance ;
+
+@cityCrimes =
+    SELECT CityName,
+           Year,
+           Month,
+           CrimeType,
+           Distance,
+           CrimeId,
+           ROW_NUMBER() OVER(PARTITION BY CrimeId ORDER BY Distance ASC) AS NearestId
+    FROM @cityCrimes;
+
+//Save City Crimes
+INSERT INTO cr.CityCrimes
+(
+    Name,
+    Year,
+    Month,
+    CrimeType
+)
+SELECT CityName,
+       Year,
+       Month,
+       CrimeType
+FROM @cityCrimes
+WHERE NearestId == 1;
+
+//@ds =
+//    SELECT CrimeId,
+//           NearestId,
+//           CityName,
+//           Year,
+//           Month,
+//           CrimeType
+//    FROM @cityCrimes
+//    WHERE NearestId == 1;
+//OUTPUT @ds
+//TO "cityCrimes.csv"
+//ORDER BY CrimeId
+//USING Outputters.Tsv();
+

@@ -1,0 +1,14 @@
+﻿USE StackOverflow;
+@ds =
+    SELECT DISTINCT PostId,
+                    Title,
+                    Date,
+                    @"http://stackoverflow.com/questions/" + PostId.ToString() AS Link
+    FROM sof.PostStats
+    WHERE AnswerCount == 0
+          AND !string.IsNullOrWhiteSpace(Title);
+
+OUTPUT @ds
+TO "stackoverflow/Results/PostWithoutAnswers.cvs"
+ORDER BY Date DESC
+USING Outputters.Csv(quoting : true);

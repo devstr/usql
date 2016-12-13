@@ -1,0 +1,31 @@
+﻿USE UKCrimes;
+USE SCHEMA cr;
+
+@aggCrimes =
+    SELECT Name,
+           CrimeType,
+           Year,
+           Month,
+           COUNT( * ) AS CrimesCount
+    FROM cr.CityCrimes
+    GROUP BY Name,
+             CrimeType,
+             Year,
+             Month;
+@aggCrimesWithCitiesInfo =
+    SELECT c.Name,
+           ac.CrimeType,
+           ac.Year,
+           ac.Month,
+           ac.CrimesCount,
+           c.Population,
+           c.Latitude,
+           c.Longitude
+    FROM @aggCrimes AS ac
+         INNER JOIN
+             cr.TopCities AS c
+         ON c.Name == ac.Name;
+
+OUTPUT @aggCrimesWithCitiesInfo
+TO "UKCrimes/Results/CitiesCrimes.csv"
+USING Outputters.Csv();

@@ -1,0 +1,16 @@
+﻿USE StackOverflow;
+@ds =
+    SELECT Category,
+           Year,
+           Month,
+           SUM(ViewCount) AS ViewCount
+    FROM sof.TechStats
+    WHERE Category != "other"
+    GROUP BY Category,
+             Year,
+             Month;
+
+OUTPUT @ds
+TO "stackoverflow/Results/StackOverflowTechRadar.cvs"
+ORDER BY Year DESC,Month DESC,ViewCount DESC
+USING Outputters.Csv(quoting : true);

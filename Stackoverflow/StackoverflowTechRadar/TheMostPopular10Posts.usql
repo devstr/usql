@@ -1,0 +1,15 @@
+﻿USE StackOverflow;
+@ds =
+    SELECT DISTINCT PostId,
+                    Title,
+                    ViewCount,
+                    @"http://stackoverflow.com/questions/" + PostId.ToString() AS Link
+    FROM sof.PostStats
+    WHERE !string.IsNullOrWhiteSpace(Title)
+ORDER BY ViewCount DESC
+FETCH 10 ROWS;
+
+OUTPUT @ds
+TO "stackoverflow/Results/TheMostPopular10Posts.cvs"
+ORDER BY ViewCount DESC
+USING Outputters.Csv(quoting : true);

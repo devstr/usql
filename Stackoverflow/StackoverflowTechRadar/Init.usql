@@ -1,0 +1,37 @@
+﻿CREATE DATABASE IF NOT EXISTS StackOverflow;
+USE StackOverflow;
+CREATE SCHEMA IF NOT EXISTS sof;
+DROP TABLE IF EXISTS sof.TechStats;
+CREATE TABLE sof.TechStats
+(
+    Category string,
+    Year int,
+    Month int,
+    ViewCount int,
+    INDEX idx_TechStats
+    CLUSTERED(Category)
+    DISTRIBUTED BY HASH (Category)
+);
+
+DROP TABLE IF EXISTS sof.PostStats;
+CREATE TABLE sof.PostStats
+(
+    PostId int,
+    UserId int,
+    Title string,
+    AnswerCount int,
+    ViewCount int,
+    Date DateTime,
+    Category string,
+    INDEX idx_TechStats
+    CLUSTERED(ViewCount, AnswerCount)
+    DISTRIBUTED BY HASH (ViewCount, AnswerCount)
+);
+
+//DECLARE @myAssemblyPath string = @"D:\Help\ColumbusDay4.0\Demos\Stackoverflow\StackOverflowCSharp\bin\Debug\";
+DECLARE @myAssemblyPath string = @"assemblies/";
+DECLARE @myAssemblyName string = @myAssemblyPath+"StackOverflowCSharp.dll";
+
+DROP ASSEMBLY IF EXISTS StackOverflowCSharp;
+CREATE ASSEMBLY StackOverflowCSharp
+FROM @myAssemblyName;

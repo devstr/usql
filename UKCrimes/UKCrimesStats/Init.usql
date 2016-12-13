@@ -1,0 +1,85 @@
+﻿//DECLARE @myAssemblyPath string = @"D:\Help\ColumbusDay4.0\Demos\UKCrimes\UKCrimesCSharp\bin\Debug\";
+//Azure
+DECLARE @myAssemblyPath string = @"assemblies/";
+DECLARE @myAssemblyName string = @myAssemblyPath+"UKCrimesCSharp.dll";
+CREATE DATABASE IF NOT EXISTS UKCrimes;
+USE DATABASE UKCrimes;
+DROP ASSEMBLY IF EXISTS UKCrimesCSharp;
+CREATE ASSEMBLY UKCrimesCSharp FROM @myAssemblyName;
+CREATE SCHEMA IF NOT EXISTS cr;
+DROP FUNCTION IF EXISTS cr.tvf_Crimes;
+
+CREATE FUNCTION IF NOT EXISTS cr.tvf_Crimes(@input string)
+RETURNS @result TABLE(CrimeID string,
+            Month string,
+            ReportedBy string,
+            FallsWithin string,
+            Longitude string,
+            Latitude string,
+            Location string,
+            LSOACode string,
+            LSOAName string,
+            CrimeType string,
+            LastOutcomeCategory string,
+            Context string,
+            Date DateTime,
+            Input string)
+AS
+BEGIN
+    @crimes =
+    EXTRACT CrimeID string,
+            Month string,
+            ReportedBy string,
+            FallsWithin string,
+            Longitude string,
+            Latitude string,
+            Location string,
+            LSOACode string,
+            LSOAName string,
+            CrimeType string,
+            LastOutcomeCategory string,
+            Context string,
+            Date DateTime,
+            Input string
+    FROM @input
+    USING Extractors.Csv(silent : false,skipFirstNRows:1);
+    
+    @result = SELECT CrimeID,
+            Month,
+            ReportedBy,
+            FallsWithin,
+            Longitude,
+            Latitude,
+            Location,
+            LSOACode,
+            LSOAName,
+            CrimeType,
+            LastOutcomeCategory,
+            Context,
+            Date,
+            Input FROM @crimes;
+    END;
+
+
+
+CREATE TABLE IF NOT EXISTS cr.TopCities
+(
+    Name string,
+    Population int,
+    Latitude double,
+    Longitude double,
+    INDEX idx_TopCities
+    CLUSTERED (Name)
+    DISTRIBUTED BY HASH (Name)
+);
+
+CREATE TABLE IF NOT EXISTS cr.CityCrimes
+(
+    Name string,
+    Year int,
+    Month int,
+    CrimeType string,
+    INDEX idx_CityCrimes
+    CLUSTERED (Name,Year,Month,CrimeType)
+    DISTRIBUTED BY HASH (Name,Year,Month,CrimeType)
+);
