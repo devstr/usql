@@ -1,0 +1,22 @@
+﻿//
+DECLARE @logsInput string = @"/Logs/{FileName}";
+REFERENCE ASSEMBLY Log4NetExt;
+USING Log4NetExtractor = Log4NetExt.Log4NetExtractor;
+
+@logs =
+    EXTRACT Level string,
+            Date DateTime?,
+            ThreadId int?,
+            Message string,
+            FileName string
+    FROM @logsInput
+    USING new Log4NetExtractor();
+
+@ds =
+    SELECT *
+    FROM @logs
+    WHERE Level == "ERROR";
+
+OUTPUT @ds
+TO "Results.csv"
+USING Outputters.Tsv();

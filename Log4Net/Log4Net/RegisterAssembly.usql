@@ -1,0 +1,4 @@
+﻿DECLARE @myAssemblyPath string = @"..\..\Log4Net\Log4NetExt\bin\Debug\";
+DECLARE @myAssemblyName string = @myAssemblyPath+"Log4NetExt.dll";
+DROP ASSEMBLY IF EXISTS Log4NetExt;
+CREATE ASSEMBLY Log4NetExt FROM @myAssemblyName;

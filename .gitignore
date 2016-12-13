@@ -1,0 +1,4 @@
+Log4Net/**/bin/**
+Log4Net/**/obj/**
+/*/.vs/
+/*/*/.vs/
