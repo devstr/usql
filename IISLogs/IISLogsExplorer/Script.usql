@@ -1,0 +1,28 @@
+﻿DECLARE @logLocation string =@"D:\Help\ColumbusDay4.0\Demos\Data\IISLogs\{filename}";
+ @result = EXTRACT
+        filename string,    
+        date DateTime,
+        time string,
+        s_ip string,
+        cs_method string,
+        cs_uristem string,
+        cs_uriquery string,
+        s_port int,
+        cs_username string,
+        c_ip string,
+        cs_useragent string,
+        cs_referer string,
+        sc_status int,
+        sc_substatus int,
+        sc_win32status int,
+        s_timetaken int
+    FROM @logLocation
+    USING Extractors.Text(delimiter:' ',silent:true);
+@ds =
+    SELECT *
+    FROM @result
+    WHERE sc_status >= 400 AND sc_status < 500;
+
+OUTPUT @ds
+TO @"log.log"
+USING Outputters.Csv();

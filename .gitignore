@@ -1,4 +1,6 @@
 Log4Net/**/bin/**
 Log4Net/**/obj/**
+IISLogs/**/bin/**
+IISLogs/**/obj/**
 /*/.vs/
 /*/*/.vs/
