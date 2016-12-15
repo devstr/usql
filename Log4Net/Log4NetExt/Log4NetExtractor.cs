@@ -81,7 +81,7 @@ namespace Log4NetExt
         {
             var l = line.TrimStart();
             return l.StartsWith("ERROR") || l.StartsWith("DEBUG") ||
-                   l.StartsWith("INFO") || l.StartsWith("WARNING");
+                   l.StartsWith("INFO") || l.StartsWith("WARN");
         }
 
         private class Log4NetEntry

@@ -1,0 +1,6 @@
+﻿DECLARE @myAssemblyPath string = @"D:\Repos\My\Github\USQL\PLSSUG\USQLCSharpDemo\bin\Debug\";
+DECLARE @myAssemblyName string = @myAssemblyPath+"USQLCSharpDemo.dll";
+USE Projs;
+DROP ASSEMBLY IF EXISTS USQLCSharpDemo;
+CREATE ASSEMBLY USQLCSharpDemo
+FROM @myAssemblyName;

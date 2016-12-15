@@ -1,0 +1,77 @@
+﻿DECLARE @assignmentsInput string = @"D:\AppData\BIGDATA\Projects\assignments{index}.csv";
+DECLARE @projectsInput string = @"D:\AppData\BIGDATA\Projects\projects.csv";
+
+//Create db 
+CREATE DATABASE IF NOT EXISTS Projs;
+USE Projs;
+CREATE SCHEMA IF NOT EXISTS pr;
+DROP TABLE IF EXISTS pr.Assignments;
+CREATE TABLE IF NOT EXISTS pr.Assignments
+(
+    user string,
+    project string,
+    INDEX IX_Assignments
+    CLUSTERED(user)
+    DISTRIBUTE BY
+    HASH(user)
+);
+
+DROP TABLE IF EXISTS pr.Projects;
+CREATE TABLE IF NOT EXISTS pr.Projects
+(
+    project string,
+    startDate DateTime,
+    endDate DateTime,
+    INDEX IX_Projects
+    CLUSTERED(project)
+    DISTRIBUTE BY
+    HASH(project)
+);
+
+//Extract information about assigments
+@usersprojects =
+    EXTRACT user string,
+            projects string,
+            index string
+    FROM @assignmentsInput
+    USING Extractors.Csv(skipFirstNRows : 1, quoting : true);
+
+@projects =
+    EXTRACT project string,
+            startDate DateTime,
+            endDate DateTime
+    FROM @projectsInput
+    USING Extractors.Csv(skipFirstNRows : 1, quoting : true);
+
+@assignments =
+    SELECT user,
+           new SqlArray<string>(projects.Split(new char[]{'|'}, StringSplitOptions.RemoveEmptyEntries)) AS projs
+    FROM @usersprojects;
+
+@assignments =
+    SELECT user,
+           T.proj AS project
+    FROM @assignments AS p
+         CROSS APPLY
+             EXPLODE(p.projs) AS T(proj);
+
+//DEMO2
+INSERT INTO pr.Assignments
+(
+    user,
+    project
+)
+SELECT user,
+       project
+FROM @assignments;
+
+INSERT INTO pr.Projects
+(
+    project,
+    startDate,
+    endDate
+)
+SELECT project,
+       startDate,
+       endDate
+FROM @projects;

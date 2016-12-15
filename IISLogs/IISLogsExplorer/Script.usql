@@ -1,4 +1,4 @@
-﻿DECLARE @logLocation string =@"D:\Help\ColumbusDay4.0\Demos\Data\IISLogs\{filename}";
+﻿DECLARE @logLocation string =@"D:\AppData\BIGDATA\IISLogs\{filename}";
  @result = EXTRACT
         filename string,    
         date DateTime,
@@ -19,10 +19,14 @@
     FROM @logLocation
     USING Extractors.Text(delimiter:' ',silent:true);
 @ds =
-    SELECT *
+    SELECT date,
+           time,
+           s_ip,
+           cs_uristem,
+           cs_uriquery
     FROM @result
     WHERE sc_status >= 400 AND sc_status < 500;
 
-OUTPUT @ds
+OUTPUT @ds 
 TO @"log.log"
 USING Outputters.Csv();

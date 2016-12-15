@@ -1,0 +1,16 @@
+﻿USE Projs;
+
+@myprojects =
+    SELECT a.project,
+           p.endDate
+    FROM pr.Assignments AS a
+         JOIN
+             pr.Projects AS p
+         ON p.project == a.project
+    WHERE a.user.StartsWith("Me")
+ORDER BY p.endDate DESC
+FETCH 2 ROWS;
+
+OUTPUT @myprojects
+TO "myprojectsDB.csv"
+USING Outputters.Csv();

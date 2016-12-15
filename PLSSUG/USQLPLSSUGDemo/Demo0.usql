@@ -1,0 +1,39 @@
+﻿DECLARE @assInput string = @"D:\AppData\BIGDATA\Projects\assignments{index}.csv";
+DECLARE @projInput string = @"D:\AppData\BIGDATA\Projects\projects.csv";
+
+@ass =
+    EXTRACT userName string,
+            projects string,
+            index string
+    FROM @assInput
+    USING Extractors.Csv(skipFirstNRows : 1);
+
+@pr =
+    EXTRACT project string,
+            start DateTime,
+            end DateTime
+    FROM @projInput
+    USING Extractors.Csv(skipFirstNRows : 1);
+
+@ass =
+    SELECT userName,
+           new SQL.ARRAY<string>(projects.Split(new char[]{'|'}, StringSplitOptions.RemoveEmptyEntries)) AS projs
+    FROM @ass;
+@ass =
+    SELECT userName,
+           P.proj AS proj
+    FROM @ass
+         CROSS APPLY
+             EXPLODE(projs) AS P(proj);
+@a =
+    SELECT *
+    FROM @ass AS a
+         JOIN
+             @pr AS p
+         ON p.project == a.proj
+    WHERE a.userName.StartsWith("Me");
+
+OUTPUT @a
+TO "ass.csv"
+ORDER BY userName
+USING Outputters.Csv();

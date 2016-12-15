@@ -1,0 +1,34 @@
+﻿DECLARE @imgFiles string = @"D:\AppData\BIGDATA\Images\{fileName}.jpg";
+USE Projs;
+REFERENCE ASSEMBLY USQLCSharpDemo;
+USING ImageColorsProcessor = USQLCSharpDemo.ImageColorProducer;
+USING BinaryExtractor = USQLCSharpDemo.BinaryContentExtractor;
+
+@rs =
+    EXTRACT content byte[],
+            fileName string
+    FROM @imgFiles
+    USING new BinaryExtractor();
+
+@ds =
+    SELECT content,fileName, new SQL.MAP<int,string>() AS colors
+    FROM @rs;
+
+@ds =
+    PROCESS @ds
+    PRODUCE content,colors,fileName
+            READONLY fileName
+    USING new ImageColorsProcessor(4);
+
+@ds =
+    SELECT fileName,
+           order,
+           colorName
+    FROM @ds
+         CROSS APPLY
+             EXPLODE(colors) AS colors(order, colorName);
+OUTPUT @ds
+TO "colorResult.csv"
+ORDER BY fileName,
+         order
+USING Outputters.Csv(); 

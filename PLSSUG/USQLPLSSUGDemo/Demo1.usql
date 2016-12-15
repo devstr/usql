@@ -1,0 +1,71 @@
+﻿DECLARE @assignmentsInput string = @"D:\AppData\BIGDATA\Projects\assignments{index}.csv";
+DECLARE @projectsInput string = @"D:\AppData\BIGDATA\Projects\projects.csv";
+//Extract information about assigments
+@usersprojects =
+    EXTRACT user string,
+            projects string,
+            index string
+    FROM @assignmentsInput
+    USING Extractors.Csv(skipFirstNRows : 1, quoting : true);
+
+@projects =
+    EXTRACT project string,
+            startDate DateTime,
+            endDate DateTime
+    FROM @projectsInput
+    USING Extractors.Csv(skipFirstNRows : 1, quoting : true);
+
+@assignments =
+    SELECT user,
+           new SqlArray<string>(projects.Split(new char[]{'|'}, StringSplitOptions.RemoveEmptyEntries)) AS projs
+    FROM @usersprojects;
+
+@details =
+    SELECT user,
+           T.proj AS project
+    FROM @assignments AS p
+         CROSS APPLY
+             EXPLODE(p.projs) AS T(proj);
+
+@agg =
+    SELECT project,
+           COUNT( * ) AS units,
+           ARRAY_AGG(user) AS workers
+    FROM @details
+    GROUP BY project;
+
+@aggout =
+    SELECT project, units
+    FROM @agg;
+
+@aggdetails =
+    SELECT a.project,
+           a.units,
+           T.user
+    FROM @agg AS a
+         CROSS APPLY
+             EXPLODE(a.workers) AS T(user);
+
+@myprojects =
+    SELECT us.project,
+           p.endDate
+    FROM @details AS us
+         JOIN
+             @projects AS p
+         ON p.project == us.project
+    WHERE user.StartsWith("Me")
+ORDER BY p.endDate DESC
+FETCH 2 ROWS;
+
+
+OUTPUT @aggout
+TO "agg.csv"
+USING Outputters.Csv();
+
+OUTPUT @aggdetails
+TO "aggdetails.csv"
+USING Outputters.Csv();
+
+OUTPUT @myprojects
+TO "myprojects.csv"
+USING Outputters.Csv();
