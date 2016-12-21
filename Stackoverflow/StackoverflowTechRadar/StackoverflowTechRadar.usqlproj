@@ -11,7 +11,7 @@
     <Name>StackoverflowTechRadar</Name>
     <RootNamespace>StackoverflowTechRadar</RootNamespace>
     <RuntimeVersion>default</RuntimeVersion>
-    <OutputStreamPath>C:\Users\tomas\AppData\Local\USQLDataRoot</OutputStreamPath>
+    <OutputStreamPath>d:\AppData\AzureDataLake</OutputStreamPath>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>

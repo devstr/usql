@@ -9,7 +9,7 @@
          ON p.project == a.project
     WHERE a.user.StartsWith("Me")
 ORDER BY p.endDate DESC
-FETCH 2 ROWS;
+FETCH 1 ROWS;
 
 OUTPUT @myprojects
 TO "myprojectsDB.csv"

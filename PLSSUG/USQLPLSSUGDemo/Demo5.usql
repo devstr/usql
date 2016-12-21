@@ -18,7 +18,7 @@ USING BinaryExtractor = USQLCSharpDemo.BinaryContentExtractor;
     PROCESS @ds
     PRODUCE content,colors,fileName
             READONLY fileName
-    USING new ImageColorsProcessor(4);
+    USING new ImageColorsProcessor(2);
 
 @ds =
     SELECT fileName,

@@ -12,20 +12,20 @@ OUTPUT @ds
 TO "pa.csv"
 ORDER BY user, end DESC
 USING Outputters.Csv();
-//
-//@r =
-//    REDUCE @ds
-//    PRESORT start
-//    ON user
-//    PRODUCE user string,
-//            start DateTime,
-//            end DateTime
-//    READONLY user
-//    USING new DateRangeReducer();
-//
-//OUTPUT @r
-//TO "r.csv"
-//ORDER BY user,
-//         start DESC,
-//         end DESC
-//USING Outputters.Csv();
+
+@r =
+    REDUCE @ds
+    PRESORT start
+    ON user
+    PRODUCE user string,
+            start DateTime,
+            end DateTime
+    READONLY user
+    USING new DateRangeReducer();
+
+OUTPUT @r
+TO "r.csv"
+ORDER BY user,
+         start DESC,
+         end DESC
+USING Outputters.Csv();

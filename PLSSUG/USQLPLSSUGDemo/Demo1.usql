@@ -55,7 +55,7 @@ DECLARE @projectsInput string = @"D:\AppData\BIGDATA\Projects\projects.csv";
          ON p.project == us.project
     WHERE user.StartsWith("Me")
 ORDER BY p.endDate DESC
-FETCH 2 ROWS;
+FETCH 10 ROWS;
 
 
 OUTPUT @aggout
