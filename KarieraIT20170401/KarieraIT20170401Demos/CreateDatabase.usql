@@ -1,0 +1,29 @@
+﻿CREATE DATABASE IF NOT EXISTS KarieraITKatowice20170401;
+USE KarieraITKatowice20170401;
+CREATE SCHEMA IF NOT EXISTS sof;
+DROP TABLE IF EXISTS sof.TechStats;
+CREATE TABLE sof.TechStats
+(
+    Category string,
+    Year int,
+    Month int,
+    ViewCount int,
+    INDEX idx_TechStats
+    CLUSTERED(Category)
+    DISTRIBUTED BY HASH(Category) INTO 3
+);
+
+DROP TABLE IF EXISTS sof.PostStats;
+CREATE TABLE sof.PostStats
+(
+    PostId int,
+    UserId int,
+    Title string,
+    AnswerCount int,
+    ViewCount int,
+    Date DateTime,
+    Category string,
+    INDEX idx_PostStats
+    CLUSTERED(UserId)
+    DISTRIBUTED BY ROUND ROBIN INTO 5
+);

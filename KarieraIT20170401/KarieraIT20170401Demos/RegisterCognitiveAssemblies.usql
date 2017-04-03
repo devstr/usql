@@ -1,0 +1,141 @@
+﻿USE DATABASE KarieraITKatowice20170401;
+
+DROP ASSEMBLY IF EXISTS [ImageCommon];
+CREATE ASSEMBLY IF NOT EXISTS [ImageCommon]
+FROM @"D:\Repos\My\Github\USQL\Cognitive\assembly\cognition\vision\common\ImageIO.dll"
+WITH ADDITIONAL_FILES = 
+     (
+         @"D:\Repos\My\Github\USQL\Cognitive\assembly\cognition\vision\common\ImageCommon.dll",
+         @"D:\Repos\My\Github\USQL\Cognitive\assembly\cognition\vision\common\FaceSdkManagedWrapper.dll",
+         @"D:\Repos\My\Github\USQL\Cognitive\assembly\cognition\vision\common\libiomp5md.dll",
+         @"D:\Repos\My\Github\USQL\Cognitive\assembly\cognition\vision\common\DetectionJDA.mdl"		 
+     );
+
+DROP ASSEMBLY IF EXISTS [ImageOcr];
+CREATE ASSEMBLY IF NOT EXISTS [ImageOcr]
+FROM @"D:\Repos\My\Github\USQL\Cognitive\assembly\cognition\vision\ocr\ImageOCR.dll"
+WITH ADDITIONAL_FILES =
+     (
+         @"D:\Repos\My\Github\USQL\Cognitive\assembly\cognition\vision\ocr\Microsoft.Ocr.dll",
+         @"D:\Repos\My\Github\USQL\Cognitive\assembly\cognition\vision\ocr\Microsoft.Ocr.xml",
+         @"D:\Repos\My\Github\USQL\Cognitive\assembly\cognition\vision\ocr\MsOcrRes.orp"
+     );
+
+DROP ASSEMBLY IF EXISTS [FaceSdk];
+CREATE ASSEMBLY IF NOT EXISTS [FaceSdk]
+FROM @"D:\Repos\My\Github\USQL\Cognitive\assembly\cognition\vision\face\FaceSdkCNN.dll"
+WITH ADDITIONAL_FILES =
+     (
+         @"D:\Repos\My\Github\USQL\Cognitive\assembly\cognition\vision\face\AgeCNN.mdl",
+         @"D:\Repos\My\Github\USQL\Cognitive\assembly\cognition\vision\face\DetectionDNN.mdl",
+         @"D:\Repos\My\Github\USQL\Cognitive\assembly\cognition\vision\face\FacialHairCnn.mdl",
+         @"D:\Repos\My\Github\USQL\Cognitive\assembly\cognition\vision\face\GenderCnn.mdl",
+         @"D:\Repos\My\Github\USQL\Cognitive\assembly\cognition\vision\face\GlassesCnn.mdl",
+         @"D:\Repos\My\Github\USQL\Cognitive\assembly\cognition\vision\face\Pose.mdl",
+         @"D:\Repos\My\Github\USQL\Cognitive\assembly\cognition\vision\face\RecognitionCNN.mdl"
+     );
+
+DROP ASSEMBLY IF EXISTS [ImageTagging];
+CREATE ASSEMBLY IF NOT EXISTS [ImageTagging]
+FROM @"D:\Repos\My\Github\USQL\Cognitive\assembly\cognition\vision\tagging\ImageTagging.dll"
+WITH ADDITIONAL_FILES =
+     (
+         @"D:\Repos\My\Github\USQL\Cognitive\assembly\cognition\vision\tagging\caffe.managed.dll",
+         @"D:\Repos\My\Github\USQL\Cognitive\assembly\cognition\vision\tagging\category_threshold_coco.txt",
+         @"D:\Repos\My\Github\USQL\Cognitive\assembly\cognition\vision\tagging\category_threshold_imagenet.txt",
+         @"D:\Repos\My\Github\USQL\Cognitive\assembly\cognition\vision\tagging\classification.bin",
+         @"D:\Repos\My\Github\USQL\Cognitive\assembly\cognition\vision\tagging\config_classification.txt",
+         @"D:\Repos\My\Github\USQL\Cognitive\assembly\cognition\vision\tagging\detection_GN_person_256.bin",
+         @"D:\Repos\My\Github\USQL\Cognitive\assembly\cognition\vision\tagging\detection_label.txt",
+         @"D:\Repos\My\Github\USQL\Cognitive\assembly\cognition\vision\tagging\EntityRecognition.Models.dll",
+         @"D:\Repos\My\Github\USQL\Cognitive\assembly\cognition\vision\tagging\feature_map.bin",
+         @"D:\Repos\My\Github\USQL\Cognitive\assembly\cognition\vision\tagging\hint_default.txt",
+         @"D:\Repos\My\Github\USQL\Cognitive\assembly\cognition\vision\tagging\ImageRecognitionLib.dll",
+         @"D:\Repos\My\Github\USQL\Cognitive\assembly\cognition\vision\tagging\ImageRecognitionSDK.dll",
+         @"D:\Repos\My\Github\USQL\Cognitive\assembly\cognition\vision\tagging\ImageRecognitionWrapper.dll",
+         @"D:\Repos\My\Github\USQL\Cognitive\assembly\cognition\vision\tagging\ImgCapLib.dll",
+         @"D:\Repos\My\Github\USQL\Cognitive\assembly\cognition\vision\tagging\LBLM.dll",
+         @"D:\Repos\My\Github\USQL\Cognitive\assembly\cognition\vision\tagging\libglog.dll",
+         @"D:\Repos\My\Github\USQL\Cognitive\assembly\cognition\vision\tagging\ManagedRecognitionSDK.Models.dll",
+         @"D:\Repos\My\Github\USQL\Cognitive\assembly\cognition\vision\tagging\Utils.dll",
+         @"D:\Repos\My\Github\USQL\Cognitive\assembly\cognition\vision\tagging\VisualRecognition.dll"
+     );
+
+DROP ASSEMBLY IF EXISTS [ImageEmotion];
+CREATE ASSEMBLY IF NOT EXISTS [ImageEmotion]
+FROM @"D:\Repos\My\Github\USQL\Cognitive\assembly\cognition\vision\emotion\EmotionAnalysis.dll"
+WITH ADDITIONAL_FILES =
+     (
+         @"D:\Repos\My\Github\USQL\Cognitive\assembly\cognition\vision\emotion\emotion_model.txt",
+         @"D:\Repos\My\Github\USQL\Cognitive\assembly\cognition\vision\emotion\EmotionRecognitionManagedWrapper.dll",
+         @"D:\Repos\My\Github\USQL\Cognitive\assembly\cognition\vision\emotion\Microsoft.ProjectOxford.Emotion.dll",
+         @"D:\Repos\My\Github\USQL\Cognitive\assembly\cognition\vision\emotion\mkl_avx.dll",
+         @"D:\Repos\My\Github\USQL\Cognitive\assembly\cognition\vision\emotion\mkl_avx2.dll",
+         @"D:\Repos\My\Github\USQL\Cognitive\assembly\cognition\vision\emotion\mkl_avx512.dll",
+         @"D:\Repos\My\Github\USQL\Cognitive\assembly\cognition\vision\emotion\mkl_core.dll",
+         @"D:\Repos\My\Github\USQL\Cognitive\assembly\cognition\vision\emotion\mkl_def.dll",
+         @"D:\Repos\My\Github\USQL\Cognitive\assembly\cognition\vision\emotion\mkl_intel_thread.dll",
+         @"D:\Repos\My\Github\USQL\Cognitive\assembly\cognition\vision\emotion\mkl_mc.dll",
+         @"D:\Repos\My\Github\USQL\Cognitive\assembly\cognition\vision\emotion\mkl_mc3.dll",
+         @"D:\Repos\My\Github\USQL\Cognitive\assembly\cognition\vision\emotion\mkl_msg.dll",
+         @"D:\Repos\My\Github\USQL\Cognitive\assembly\cognition\vision\emotion\mkl_rt.dll",
+         @"D:\Repos\My\Github\USQL\Cognitive\assembly\cognition\vision\emotion\mkl_sequential.dll",
+         @"D:\Repos\My\Github\USQL\Cognitive\assembly\cognition\vision\emotion\mkl_tbb_thread.dll",
+         @"D:\Repos\My\Github\USQL\Cognitive\assembly\cognition\vision\emotion\mkl_vml_avx.dll",
+         @"D:\Repos\My\Github\USQL\Cognitive\assembly\cognition\vision\emotion\mkl_vml_avx2.dll",
+         @"D:\Repos\My\Github\USQL\Cognitive\assembly\cognition\vision\emotion\mkl_vml_avx512.dll",
+         @"D:\Repos\My\Github\USQL\Cognitive\assembly\cognition\vision\emotion\mkl_vml_cmpt.dll",
+         @"D:\Repos\My\Github\USQL\Cognitive\assembly\cognition\vision\emotion\mkl_vml_def.dll",
+         @"D:\Repos\My\Github\USQL\Cognitive\assembly\cognition\vision\emotion\mkl_vml_mc.dll",
+         @"D:\Repos\My\Github\USQL\Cognitive\assembly\cognition\vision\emotion\mkl_vml_mc2.dll",
+         @"D:\Repos\My\Github\USQL\Cognitive\assembly\cognition\vision\emotion\mkl_vml_mc3.dll"
+     );
+
+DROP ASSEMBLY IF EXISTS [TextCommon];
+CREATE ASSEMBLY IF NOT EXISTS [TextCommon]
+FROM @"D:\Repos\My\Github\USQL\Cognitive\assembly\cognition\text\common\SplitApplyer.dll";
+
+DROP ASSEMBLY IF EXISTS [TextKeyPhrase];
+CREATE ASSEMBLY IF NOT EXISTS [TextKeyPhrase]
+FROM @"D:\Repos\My\Github\USQL\Cognitive\assembly\cognition\text\keyphrase\TextKeyPhrases.dll"
+WITH ADDITIONAL_FILES =
+     (
+         @"D:\Repos\My\Github\USQL\Cognitive\assembly\cognition\text\keyphrase\KeyPhrasePreprocessor.en-us.mrr",
+         @"D:\Repos\My\Github\USQL\Cognitive\assembly\cognition\text\keyphrase\Microsoft.NaturalLanguage.ExtractionPreprocessing.dll",
+         @"D:\Repos\My\Github\USQL\Cognitive\assembly\cognition\text\keyphrase\Microsoft.NaturalLanguage.KeyPhraseExtractor.dll",
+         @"D:\Repos\My\Github\USQL\Cognitive\assembly\cognition\text\keyphrase\Microsoft.NaturalLanguage.Runtime.Interop.dll",
+         @"D:\Repos\My\Github\USQL\Cognitive\assembly\cognition\text\keyphrase\Microsoft.NaturalLanguage.Runtime.Managed.dll",
+         @"D:\Repos\My\Github\USQL\Cognitive\assembly\cognition\text\keyphrase\Microsoft.NaturalLanguage.TextRank.dll"
+     );
+
+DROP ASSEMBLY IF EXISTS [TextSentiment];
+CREATE ASSEMBLY IF NOT EXISTS [TextSentiment]
+FROM @"D:\Repos\My\Github\USQL\Cognitive\assembly\cognition\text\sentiment\TextSentimentAnalysis.dll"
+WITH ADDITIONAL_FILES =
+     (
+         @"D:\Repos\My\Github\USQL\Cognitive\assembly\cognition\text\sentiment\50mpaths2.txt",
+         @"D:\Repos\My\Github\USQL\Cognitive\assembly\cognition\text\sentiment\emoticon.lex",
+         @"D:\Repos\My\Github\USQL\Cognitive\assembly\cognition\text\sentiment\function_words.lex",
+         @"D:\Repos\My\Github\USQL\Cognitive\assembly\cognition\text\sentiment\ML.Func.dll",
+         @"D:\Repos\My\Github\USQL\Cognitive\assembly\cognition\text\sentiment\neg.lex.txt",
+         @"D:\Repos\My\Github\USQL\Cognitive\assembly\cognition\text\sentiment\NLP.Base.dll",
+         @"D:\Repos\My\Github\USQL\Cognitive\assembly\cognition\text\sentiment\NLP.Func.dll",
+         @"D:\Repos\My\Github\USQL\Cognitive\assembly\cognition\text\sentiment\NLP.Twitter.dll",
+         @"D:\Repos\My\Github\USQL\Cognitive\assembly\cognition\text\sentiment\NRC-Hashtag_bigrams-pmilexicon.txt",
+         @"D:\Repos\My\Github\USQL\Cognitive\assembly\cognition\text\sentiment\NRC-Hashtag_unigrams-pmilexicon.txt",
+         @"D:\Repos\My\Github\USQL\Cognitive\assembly\cognition\text\sentiment\pol.fv",
+         @"D:\Repos\My\Github\USQL\Cognitive\assembly\cognition\text\sentiment\pol.lex",
+         @"D:\Repos\My\Github\USQL\Cognitive\assembly\cognition\text\sentiment\pol.model",
+         @"D:\Repos\My\Github\USQL\Cognitive\assembly\cognition\text\sentiment\pos.lex.txt",
+         @"D:\Repos\My\Github\USQL\Cognitive\assembly\cognition\text\sentiment\S.Base.dll",
+         @"D:\Repos\My\Github\USQL\Cognitive\assembly\cognition\text\sentiment\S.Core.dll",
+         @"D:\Repos\My\Github\USQL\Cognitive\assembly\cognition\text\sentiment\sentiment.emd",
+         @"D:\Repos\My\Github\USQL\Cognitive\assembly\cognition\text\sentiment\sentiment.lex",
+         @"D:\Repos\My\Github\USQL\Cognitive\assembly\cognition\text\sentiment\Sentiment140_bigrams-pmilexicon.txt",
+         @"D:\Repos\My\Github\USQL\Cognitive\assembly\cognition\text\sentiment\Sentiment140_unigrams-pmilexicon.txt",
+         @"D:\Repos\My\Github\USQL\Cognitive\assembly\cognition\text\sentiment\sub.fv",
+         @"D:\Repos\My\Github\USQL\Cognitive\assembly\cognition\text\sentiment\sub.lex",
+         @"D:\Repos\My\Github\USQL\Cognitive\assembly\cognition\text\sentiment\sub.model",
+         @"D:\Repos\My\Github\USQL\Cognitive\assembly\cognition\text\sentiment\twitter.word.40.cluster"
+     );
+

@@ -1,0 +1,5 @@
+﻿DECLARE @AssemblyPath string = @"D:\Repos\My\Github\USQL\KarieraIT20170401\DevStrADLExt\bin\Debug\";
+DECLARE @AssemblyExt string = @AssemblyPath+"DevStrADLExt.dll";
+USE KarieraITKatowice20170401;
+DROP ASSEMBLY IF EXISTS DevStrADLExt;
+CREATE ASSEMBLY DevStrADLExt FROM @AssemblyExt;

@@ -1,0 +1,62 @@
+﻿<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>f7a4a9e5-eaa3-43f9-93a8-70d6d1fb7a10</ProjectGuid>
+    <OutputType>File</OutputType>
+    <AssemblyName>Algebra.xml</AssemblyName>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <Name>KarieraIT20170401Demos</Name>
+    <RootNamespace>KarieraIT20170401Demos</RootNamespace>
+    <RuntimeVersion>default</RuntimeVersion>
+    <OutputStreamPath>D:\AppData\AzureDataLake</OutputStreamPath>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\Debug\</OutputPath>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugSymbols>false</DebugSymbols>
+    <OutputPath>bin\Release\</OutputPath>
+  </PropertyGroup>
+  <ItemGroup>
+    <Script Include="CreateDatabase.usql" />
+    <Script Include="Demo0IISLogs.usql" />
+    <Script Include="Demo2Tagger.usql" />
+    <Script Include="Demo3Faces.usql" />
+    <Script Include="Demo4StackOverflow.usql" />
+    <Script Include="Demo5StackOverflowTechRadar.usql" />
+    <Script Include="Demo6.usql" />
+    <Script Include="RegisterCognitiveAssemblies.usql" />
+    <Script Include="RegisterExtensions.usql" />
+    <ScriptCode Include="CreateDatabase.usql.cs">
+      <DependentUpon>CreateDatabase.usql</DependentUpon>
+    </ScriptCode>
+    <ScriptCode Include="Demo0IISLogs.usql.cs">
+      <DependentUpon>Demo0IISLogs.usql</DependentUpon>
+    </ScriptCode>
+    <ScriptCode Include="Demo2Tagger.usql.cs">
+      <DependentUpon>Demo2Tagger.usql</DependentUpon>
+    </ScriptCode>
+    <ScriptCode Include="Demo3Faces.usql.cs">
+      <DependentUpon>Demo3Faces.usql</DependentUpon>
+    </ScriptCode>
+    <ScriptCode Include="Demo4StackOverflow.usql.cs">
+      <DependentUpon>Demo4StackOverflow.usql</DependentUpon>
+    </ScriptCode>
+    <ScriptCode Include="Demo5StackOverflowTechRadar.usql.cs">
+      <DependentUpon>Demo5StackOverflowTechRadar.usql</DependentUpon>
+    </ScriptCode>
+    <ScriptCode Include="Demo6.usql.cs">
+      <DependentUpon>Demo6.usql</DependentUpon>
+    </ScriptCode>
+    <ScriptCode Include="RegisterCognitiveAssemblies.usql.cs">
+      <DependentUpon>RegisterCognitiveAssemblies.usql</DependentUpon>
+    </ScriptCode>
+    <ScriptCode Include="RegisterExtensions.usql.cs">
+      <DependentUpon>RegisterExtensions.usql</DependentUpon>
+    </ScriptCode>
+  </ItemGroup>
+  <Import Project="$(AppData)\Microsoft\DataLake\MsBuild\1.0\Usql.targets" />
+</Project>

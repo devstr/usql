@@ -1,0 +1,31 @@
+﻿USE KarieraITKatowice20170401;
+REFERENCE ASSEMBLY TextCommon;
+REFERENCE ASSEMBLY TextSentiment;
+REFERENCE ASSEMBLY TextKeyPhrase;
+REFERENCE ASSEMBLY DevStrADLExt;
+
+USING FullFileTextExctractor =  DevStrADLExt.Extractors.FullFileTextExctractor;
+
+@azureOpinions =
+    EXTRACT Text string
+    FROM @"D:\AppData\BIGDATA\Reviews\{FileName}.txt"
+    USING new FullFileTextExctractor();
+
+@sentiment =
+    PROCESS @azureOpinions
+    PRODUCE 
+            Text,
+            FileName,
+            Sentiment string,
+            Conf double
+    READONLY
+             Text,
+             FileName
+    USING new Cognition.Text.SentimentAnalyzer(true);
+
+@sentiment =
+    SELECT  FileName, Sentiment,Conf
+    FROM @sentiment;
+OUTPUT @sentiment
+TO @"opinion.csv"
+USING Outputters.Csv();

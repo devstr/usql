@@ -1,0 +1,36 @@
+﻿CREATE DATABASE IF NOT EXISTS KarieraITKatowice20170401;
+USE KarieraITKatowice20170401;
+CREATE SCHEMA IF NOT EXISTS sof;
+DROP TABLE IF EXISTS sof.TechStats;
+CREATE TABLE sof.TechStats
+(
+    Category string,
+    Year int,
+    Month int,
+    ViewCount int,
+    INDEX idx_TechStats
+    CLUSTERED(Category)
+    DISTRIBUTED BY HASH(Category) INTO 3
+);
+INSERT INTO sof.TechStats
+(
+    Category,
+    Year,
+    Month,
+    ViewCount
+)
+SELECT Category,
+       Year,
+       Month,
+       ViewCount
+FROM @postsByCategory
+     WHERE Category != "other";
+@ds =
+    SELECT Category,
+           Year,
+           Month,
+           SUM(ViewCount) AS ViewCount
+    FROM sof.TechStats
+    GROUP BY Category,
+             Year,
+             Month;

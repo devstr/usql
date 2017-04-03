@@ -1,0 +1,52 @@
+﻿USE KarieraITKatowice20170401;
+REFERENCE ASSEMBLY ImageCommon;
+REFERENCE ASSEMBLY ImageTagging;
+
+DECLARE @input string = @"D:\AppData\BIGDATA\Images\{FileName}";
+
+///Extract images
+@imgs =
+    EXTRACT FileName string,
+            ImgData byte[]
+    FROM @input
+    USING new Cognition.Vision.ImageExtractor();
+
+//// Extract the number of objects on each image and tag them 
+@objects =
+    PROCESS @imgs 
+    PRODUCE FileName,
+            NumObjects int,
+            Tags string
+    READONLY FileName
+    USING new Cognition.Vision.ImageTagger();
+
+//// Split tags - convert tag1;tag2;tag3 to ARRAY[] {"tag1",tag2",tag3"}
+@objects =
+    SELECT FileName,
+           new SQL.ARRAY<string>(Tags.Split(new char[]{';'}, StringSplitOptions.RemoveEmptyEntries)) AS ObjTags
+    FROM @objects;
+
+//// Transform to table:
+///  FileName tag1
+///  FileName tag2
+///  FileName tag3
+
+@objects =
+    SELECT o.FileName,
+           t.Tag
+    FROM @objects AS o
+         CROSS APPLY
+             EXPLODE(o.ObjTags) AS t(Tag);
+//// Find files with car
+@carObjects =
+    SELECT DISTINCT FileName
+    FROM @objects AS o
+    WHERE o.Tag.Contains("car") OR o.Tag.Contains("auto") OR o.Tag.Contains("vahicle");
+
+OUTPUT @carObjects
+TO @"/my/cognition/output/cars.csv"
+USING Outputters.Csv();
+
+OUTPUT @objects
+TO @"/my/cognition/output/objects.csv"
+USING Outputters.Csv();

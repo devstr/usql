@@ -1,0 +1,38 @@
+﻿USE KarieraITKatowice20170401;
+REFERENCE ASSEMBLY DevStrADLExt;
+
+DECLARE @logsLocation string = @"D:\AppData\BIGDATA\IISLogs\{filename}";
+@iisLogs = EXTRACT
+        filename string,    
+        date DateTime,
+        time string,
+        s_ip string,
+        cs_method string,
+        cs_uristem string,
+        cs_uriquery string,
+        s_port int,
+        cs_username string,
+        c_ip string,
+        cs_useragent string,
+        cs_referer string,
+        sc_status int,
+        sc_substatus int,
+        sc_win32status int,
+        s_timetaken int
+    FROM @logsLocation
+    USING Extractors.Text(delimiter:' ',silent:true);
+
+@ds =
+    SELECT DevStrADLExt.Utils.IpConverter.ToIp4Format(c_ip) AS Ip,
+           date.Date AS Date
+    FROM @iisLogs;
+
+@ds = SELECT Date,Ip, COUNT(*) AS ReqCount
+             FROM @ds 
+                  WHERE Ip != "0.0.0.1"
+       GROUP BY Ip,Date;
+
+OUTPUT @ds 
+TO @"iisStats.log"
+ORDER BY Date DESC,ReqCount DESC
+USING Outputters.Csv();

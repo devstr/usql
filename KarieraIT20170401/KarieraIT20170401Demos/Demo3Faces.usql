@@ -1,0 +1,59 @@
+﻿USE KarieraITKatowice20170401;
+REFERENCE ASSEMBLY ImageCommon;
+REFERENCE ASSEMBLY FaceSdk;
+REFERENCE ASSEMBLY DevStrADLExt;
+
+DECLARE @input string = @"D:\AppData\BIGDATA\Images\{FileName}";
+
+///Extract images
+@imgs =
+    EXTRACT FileName string,
+            ImgData byte[]
+    FROM @input
+    USING new Cognition.Vision.ImageExtractor();
+
+////// Estimate age and gender for human faces
+@rawFaces = 
+        PROCESS @imgs
+        PRODUCE FileName,
+                NumFaces int,
+                FaceAge string,
+                FaceGender string
+        READONLY FileName
+        USING new Cognition.Vision.FaceDetector();
+@faces =
+    SELECT FileName,
+           new SQL.ARRAY<string>(DevStrADLExt.Utils.ArraysUtils.MergeByPosition(FaceAge, FaceGender, ";")) AS Info
+    FROM @rawFaces;
+
+@faceObjs =
+    SELECT f.FileName,
+           I.pi
+    FROM @faces AS f
+         CROSS APPLY
+             EXPLODE(f.Info) AS I(pi);
+
+@faceObjs =
+    SELECT FileName,
+           new SQL.ARRAY<string>(pi.Split(new string[]{";"}, StringSplitOptions.RemoveEmptyEntries)) AS Pi
+    FROM @faceObjs;
+
+@faceObjs =
+    SELECT FileName,
+           Byte.Parse(Pi[0]) AS Age,
+           Pi[1] AS Gender
+    FROM @faceObjs;
+
+//
+@kids =
+    SELECT DISTINCT FileName
+    FROM @faceObjs
+    WHERE Age < 7 AND Gender == "Female";
+
+OUTPUT @kids
+TO @"/my/cognition/output/kids.csv"
+USING Outputters.Csv();
+
+OUTPUT @rawFaces
+TO @"/my/cognition/output/rawFaces.csv"
+USING Outputters.Csv();
